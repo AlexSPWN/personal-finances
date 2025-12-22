@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { AuthContext } from "./AuthContext";
-import { ensureUserProfile, getUserProfile } from "../services/userService";
+import { ensureUserProfile, subscribeToUserProfile } from "../services/userService";
 import type { UserProfileDB } from "../types/UserProfileDB";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -11,13 +11,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<UserProfileDB | null>(null)
   const [loading, setLoading] = useState(true);
 
+  const unsubscribeProfileRef = useRef<null | (() => void)>(null);
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      
+      // cleanup old listener
+      if (unsubscribeProfileRef.current) { // if active DB listener?
+        unsubscribeProfileRef.current(); // stop old listeners () => off(userRef)
+        unsubscribeProfileRef.current = null; // clear reference
+      }
+
       if(user) {
         await ensureUserProfile(user.uid, user.email);
-        const profileData = await getUserProfile(user.uid);
+
+        unsubscribeProfileRef.current = subscribeToUserProfile(
+          user.uid,
+          setProfile
+        );
+
+        //const profileData = await getUserProfile(user.uid);
         setUser(user);
-        setProfile(profileData);
+        //setProfile(profileData);
       } else {
         setUser(null);
         setProfile(null);
@@ -25,7 +40,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     });
 
-    return unsubscribe;
+    //return unsubscribe;
+    return () => {
+      unsubscribeAuth();
+      if(unsubscribeProfileRef.current) {
+        unsubscribeProfileRef.current()
+      }
+    } 
   }, []);
 
   return (

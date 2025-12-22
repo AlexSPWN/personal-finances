@@ -1,4 +1,4 @@
-import { ref, set, get } from "firebase/database";
+import { ref, set, get, off, onValue } from "firebase/database";
 import { db } from "../firebase/firebase";
 import { createDefaultUserProfile } from "../constants/defaultUserProfile";
 import type { UserProfileDB } from "../types/UserProfileDB";
@@ -25,4 +25,17 @@ export const ensureUserProfile = async (
     const profile = createDefaultUserProfile(email);
     await set(userRef, profile);
   }
+};
+
+export const subscribeToUserProfile = (
+  uid: string,
+  callback: (profile: UserProfileDB | null) => void
+) => {
+  const userRef = ref(db, `users/${uid}`);
+
+  onValue(userRef, (snapshot) => {
+    callback(snapshot.exists() ? snapshot.val() : null);
+  });
+
+  return () => off(userRef);
 };
