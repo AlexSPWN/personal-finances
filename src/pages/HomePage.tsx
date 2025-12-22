@@ -5,6 +5,7 @@ export const HomePage = () => {
         <>
         <h1>Main page</h1>
         <Link to="/login">Login</Link>
+        <Link to="/dashboard">Dashboard</Link>
         </>
     );
 }
