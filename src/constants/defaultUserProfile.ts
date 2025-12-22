@@ -1,8 +1,8 @@
-import type { UserProfile } from "../types/UserProfile";
+import type { UserProfileDB } from "../types/UserProfileDB";
 
 export const createDefaultUserProfile = (
   email: string | null
-): UserProfile => ({
+): UserProfileDB => ({
   email,
   role: "user",
   language: "en",

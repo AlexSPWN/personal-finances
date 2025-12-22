@@ -1,8 +1,9 @@
 import { ref, set, get } from "firebase/database";
 import { db } from "../firebase/firebase";
 import { createDefaultUserProfile } from "../constants/defaultUserProfile";
+import type { UserProfileDB } from "../types/UserProfileDB";
 
-export const getUserProfile = async (uid: string) => {
+export const getUserProfile = async (uid: string): Promise<UserProfileDB | null> => {
   const snapshot = await get(ref(db, `users/${uid}`));
   return snapshot.exists() ? snapshot.val() : null;
 };
