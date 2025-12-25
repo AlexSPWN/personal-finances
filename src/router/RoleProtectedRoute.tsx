@@ -9,13 +9,13 @@ type Props = {
 };
 
 export const RoleProtectedRoute = ({ allowedRoles, children }: Props) => {
-  const { user, profile, loading } = useAuth();
+  const { user, profile/* , loading */ } = useAuth();
 
     // Wait until BOTH auth & profile are ready
-  if (loading || !profile) return <p>Loading...</p>;
+  /* if (loading || !profile) return <p>Loading...</p>; */
 
   // not logged in
-  if (!user) {
+  if (!user || !profile) {
     return <Navigate to="/login" replace />;
   }
 

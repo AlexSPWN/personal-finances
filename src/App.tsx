@@ -1,23 +1,19 @@
-/* import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg' */
-import './App.css'
-/* import { Route, Routes } from 'react-router'
-import { HomePage } from './pages/HomePage'
-import { LoginPage } from './pages/LoginPage'
-import { RegisterPage } from './pages/RegisterPage' */
+import { useAuth } from './hooks/useAuth';
 import { AppRouter } from './router/AppRouter'
 
-function App() {
-  //const [count, setCount] = useState(0)
+import './App.css'
+import { GlobalLoader } from './components/GlobalLoader';
 
+function App() {
+
+  const { loading } = useAuth();
+
+  if(loading) {
+    return <GlobalLoader />
+  }
+  
   return (
     <>
-      {/* <Routes>
-        <Route index element={<HomePage />} />
-        <Route path='/login' element={<LoginPage />} />
-        <Route path='/register' element={<RegisterPage />} />
-      </Routes> */}
       <AppRouter />
     </>
   )
