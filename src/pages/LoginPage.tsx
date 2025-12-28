@@ -7,6 +7,8 @@ export const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
   const from =
@@ -14,15 +16,41 @@ export const LoginPage = () => {
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    setSubmitting(true);
     setError(null);
 
     try {
       await loginEmail(email, password);
       navigate(from, { replace: true });
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : (err as string));
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  const isEmailValid = email.includes("@");
+  const isPasswordValid = password.length >= 6;
+
+  const getErrorMessage = (err: unknown) => {
+    if (!(err instanceof Error)) return "Login failed";
+
+    if (err.message.includes("auth/invalid-credential")) {
+      return "Invalid email or password";
+    }
+
+    if (err.message.includes("auth/user-not-found")) {
+      return "User not found";
+    }
+
+    if (err.message.includes("auth/wrong-password")) {
+      return "Wrong password";
+    }
+
+    return err.message;
+  };
+
 
   return (
     <div>
@@ -45,7 +73,11 @@ export const LoginPage = () => {
           required
         />
 
-        <button type="submit">Login</button>
+        <button 
+          type="submit"
+          className="bg-blue-400 rounded p-2 text-amber-50 font-bold"
+          disabled={!isEmailValid || !isPasswordValid || submitting}
+        >{submitting ? "Loggin in..." : "Login"}</button>
       </form>
 
       <hr />
@@ -54,10 +86,14 @@ export const LoginPage = () => {
         className="bg-blue-400 rounded p-2 text-amber-50 font-bold"
         onClick={async () => {
           try {
+            setSubmitting(true);
+            setError(null);
             await loginGoogle();
             navigate(from, { replace: true });
           } catch (err) {
-            setError(err instanceof Error ? err.message : String(err));
+            setError(getErrorMessage(err));
+          } finally {
+            setSubmitting(false);
           }
         }}
       >
