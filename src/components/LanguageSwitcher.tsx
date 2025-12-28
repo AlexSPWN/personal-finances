@@ -15,9 +15,15 @@ export const LanguageSwitcher = () => {
   };
 
   return (
-    <div>
-      <button onClick={() => changeLanguage("en")}>EN</button>
-      <button onClick={() => changeLanguage("uk")}>UK</button>
+    <div className="flex flex-2 space-x-1">
+      <button 
+        className="bg-amber-200 rounded p-2" 
+        onClick={() => changeLanguage("en")}
+      >EN</button>
+      <button 
+        className="bg-amber-200 rounded p-2"
+        onClick={() => changeLanguage("uk")}
+      >UK</button>
     </div>
   );
 };
