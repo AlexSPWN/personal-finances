@@ -1,7 +1,7 @@
-import { ref, set, get, off, onValue } from "firebase/database";
+import { ref, set, get, off, onValue, update } from "firebase/database";
 import { db } from "../firebase/firebase";
 import { createDefaultUserProfile } from "../constants/defaultUserProfile";
-import type { UserProfileDB } from "../types/UserProfileDB";
+import type { LanguageUI, UserProfileDB } from "../types/UserProfileDB";
 
 export const getUserProfile = async (uid: string): Promise<UserProfileDB | null> => {
   const snapshot = await get(ref(db, `users/${uid}`));
@@ -39,3 +39,8 @@ export const subscribeToUserProfile = (
 
   return () => off(userRef);
 };
+
+export const updateUserLanguage = (uid: string, language: LanguageUI) => {
+  const userRef = ref(db, `users/${uid}`);
+  return update(userRef, { language });
+}

@@ -1,10 +1,10 @@
 import { ref, update } from "firebase/database";
 import { db } from "../firebase/firebase";
-import type { Language } from "../types/UserProfileDB";
+import type { LanguageUI } from "../types/UserProfileDB";
 
 export const updateUserLanguage = async (
   uid: string,
-  language: Language
+  language: LanguageUI
 ) => {
   return update(ref(db, `users/${uid}`), { language });
 };

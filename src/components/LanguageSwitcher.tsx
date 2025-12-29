@@ -1,13 +1,13 @@
 import { useAuth } from "../hooks/useAuth";
 import { updateUserLanguage } from "../services/languageService";
-import type { Language } from "../types/UserProfileDB";
+import type { LanguageUI } from "../types/UserProfileDB";
 
 export const LanguageSwitcher = () => {
   const { user, profile } = useAuth();
 
   if (!user || !profile) return null;
 
-  const changeLanguage = async (lang: Language) => {
+  const changeLanguage = async (lang: LanguageUI) => {
     if (lang === profile.language) return;
     await updateUserLanguage(user.uid, lang);
     // profile will auto-update on refresh

@@ -9,6 +9,7 @@ import { DashboardLayout } from "../pages/dashboard/DashboardLayout";
 import { RoleProtectedRoute } from "./RoleProtectedRoute";
 import { AdminPage } from "../pages/dashboard/admin/AdminPage";
 import { ManagerPage } from "../pages/dashboard/manager/ManagerPage";
+import { ProfilePage } from "../pages/ProfilePage";
 
 export const AppRouter = () => {
   return (
@@ -25,6 +26,7 @@ export const AppRouter = () => {
         }
       >
         <Route index element={<DashboardPage />} />
+        <Route path="profile" element={<ProfilePage />} />
         <Route path="admin" element={
             <RoleProtectedRoute allowedRoles={["admin"]}>
                 <AdminPage />
