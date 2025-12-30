@@ -1,0 +1,28 @@
+export const translations = {
+  en: {
+    login: "Login",
+    logout: "Logout",
+    email: "Email",
+    password: "Password",
+    profile: "Profile",
+    role: "Role",
+    language: "Language",
+    dashboard: "Dashboard",
+    admin: "Admin",
+    manager: "Manager",
+    loading: "Loading...",
+  },
+  uk: {
+    login: "Увійти",
+    logout: "Вийти",
+    email: "Електронна пошта",
+    password: "Пароль",
+    profile: "Профіль",
+    role: "Роль",
+    language: "Мова",
+    dashboard: "Панель",
+    admin: "Адмін",
+    manager: "Менеджер",
+    loading: "Завантаження...",
+  },
+} as const;

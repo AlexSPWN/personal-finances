@@ -2,8 +2,12 @@ import { useState } from "react";
 //import { Login } from "../components/Login";
 import { loginEmail, loginGoogle } from "../services/authService";
 import { useLocation, useNavigate } from "react-router";
+import { useTranslation } from "../hooks/useTranslation";
 
 export const LoginPage = () => {
+  
+  const {tr} = useTranslation();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +63,7 @@ export const LoginPage = () => {
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder={tr("email")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -67,7 +71,7 @@ export const LoginPage = () => {
 
         <input
           type="password"
-          placeholder="Password"
+          placeholder={tr("password")}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required

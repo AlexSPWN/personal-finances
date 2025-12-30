@@ -2,8 +2,11 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { logout } from "../services/authService";
 import { updateUserLanguage } from "../services/userService";
+import { useTranslation } from "../hooks/useTranslation";
 
 export const ProfilePage = () => {
+    const {tr} = useTranslation();
+
   const { user, profile } = useAuth();
   const navigate = useNavigate();
 
@@ -24,18 +27,18 @@ export const ProfilePage = () => {
 
   return (
     <div>
-      <h2>Profile</h2>
+      <h2>{tr("profile")}</h2>
 
       <p>
-        <strong>Email:</strong> {user.email}
+        <strong>{tr("email")}:</strong> {user.email}
       </p>
 
       <p>
-        <strong>Role:</strong> {profile.role}
+        <strong>{tr("role")}:</strong> {profile.role}
       </p>
 
       <label>
-        Language:{" "}
+        {tr("language")}:{" "}
         <select
           value={profile.language}
           onChange={handleLanguageChange}
@@ -45,7 +48,7 @@ export const ProfilePage = () => {
         </select>
       </label>
 
-      <button onClick={handleLogout}>Logout</button>
+      <button onClick={handleLogout}>{tr("logout")}</button>
     </div>
   );
 };

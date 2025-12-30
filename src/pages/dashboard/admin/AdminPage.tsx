@@ -4,13 +4,15 @@ import { subscribeToAllUsers, updateUserRole, type UserWithId } from "../../../s
 import type { UserRole } from "../../../types/UserProfileDB";
 
 export const AdminPage = () => {
-    const { profile } = useAuth();
+    const { user, profile } = useAuth();
   const [users, setUsers] = useState<UserWithId[]>([]);
 
   useEffect(() => {
+    if (!profile) return;
+    if (profile.role !== "admin" && profile.role !== "manager") return;
     const unsubscribe = subscribeToAllUsers(setUsers);
     return unsubscribe;
-  }, []);
+  }, [profile]);
 
   const canAssignRole = (targetRole: UserRole) => {
     if (profile?.role === "admin") return true;
@@ -19,10 +21,26 @@ export const AdminPage = () => {
     return false;
   };
 
+  const canEditUser = (targetUid: string, targetRole: UserRole) => {
+    if (!user || !profile) return false;
+
+    // cannot change yourself
+    if (targetUid === user.uid) return false;
+
+    if (profile.role === "admin") return true;
+
+    if (profile.role === "manager" && targetRole !== "admin") {
+      return true;
+    }
+
+    return false;
+  };
+
   const handleRoleChange = async (
     uid: string,
     role: UserRole
   ) => {
+    if (!canEditUser(uid, role)) return;
     await updateUserRole(uid, role);
   };
 
@@ -49,24 +67,20 @@ export const AdminPage = () => {
               <td>
                 <select
                   value={user.role}
+                  disabled={!canEditUser(user.uid, user.role)}
                   onChange={(e) =>
-                    handleRoleChange(
-                      user.uid,
-                      e.target.value as UserRole
-                    )
+                    handleRoleChange(user.uid, e.target.value as UserRole)
                   }
                 >
-                  {(["admin", "manager", "user"] as UserRole[]).map(
-                    (role) => (
-                      <option
-                        key={role}
-                        value={role}
-                        disabled={!canAssignRole(role)}
-                      >
-                        {role}
-                      </option>
-                    )
-                  )}
+                  {(["admin", "manager", "user"] as UserRole[]).map((role) => (
+                    <option
+                      key={role}
+                      value={role}
+                      disabled={!canAssignRole(role)}
+                    >
+                      {role}
+                    </option>
+                  ))}
                 </select>
               </td>
             </tr>
