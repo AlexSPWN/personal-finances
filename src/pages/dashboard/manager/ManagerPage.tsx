@@ -1,7 +1,18 @@
+import { UserRowTable } from "../../../components/UserRowTable";
+import { useAuth } from "../../../hooks/useAuth";
+import type { ViewerRole } from "../../../types/UserProfileDB";
+
 export const ManagerPage = ()  => {
-    return (
+    const {profile} = useAuth();
+    
+      if(!profile) return null;
+
+      const viewerRole = profile!.role as ViewerRole;
+    
+      return (
         <>
-        Manager Page
+        <h2>Manager Panel - users</h2>
+        <UserRowTable viewerRole={viewerRole} />
         </>
-    );
+      );
 }

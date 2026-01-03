@@ -13,9 +13,9 @@ function App() {
   }
   
   return (
-    <>
+    <div className='bg-gray-400 h-screen'>
       <AppRouter />
-    </>
+    </div>
   )
 }
 

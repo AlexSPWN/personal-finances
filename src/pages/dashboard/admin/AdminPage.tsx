@@ -1,92 +1,19 @@
-import { useEffect, useState } from "react";
+
+import { UserRowTable } from "../../../components/UserRowTable";
 import { useAuth } from "../../../hooks/useAuth";
-import { subscribeToAllUsers, updateUserRole, type UserWithId } from "../../../services/adminUserService";
-import type { UserRole } from "../../../types/UserProfileDB";
+import type { ViewerRole } from "../../../types/UserProfileDB";
 
 export const AdminPage = () => {
-    const { user, profile } = useAuth();
-  const [users, setUsers] = useState<UserWithId[]>([]);
+  const {profile} = useAuth();
 
-  useEffect(() => {
-    if (!profile) return;
-    if (profile.role !== "admin" && profile.role !== "manager") return;
-    const unsubscribe = subscribeToAllUsers(setUsers);
-    return unsubscribe;
-  }, [profile]);
+  if(!profile) return null;
 
-  const canAssignRole = (targetRole: UserRole) => {
-    if (profile?.role === "admin") return true;
-    if (profile?.role === "manager")
-      return targetRole === "manager" || targetRole === "user";
-    return false;
-  };
-
-  const canEditUser = (targetUid: string, targetRole: UserRole) => {
-    if (!user || !profile) return false;
-
-    // cannot change yourself
-    if (targetUid === user.uid) return false;
-
-    if (profile.role === "admin") return true;
-
-    if (profile.role === "manager" && targetRole !== "admin") {
-      return true;
-    }
-
-    return false;
-  };
-
-  const handleRoleChange = async (
-    uid: string,
-    role: UserRole
-  ) => {
-    if (!canEditUser(uid, role)) return;
-    await updateUserRole(uid, role);
-  };
+  const viewerRole = profile!.role as ViewerRole;
 
   return (
-    <div>
-      <h2>Admin Panel — Users</h2>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Language</th>
-            <th>Change role</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.uid}>
-              <td>{user.email}</td>
-              <td>{user.role}</td>
-              <td>{user.language}</td>
-              <td>
-                <select
-                  value={user.role}
-                  disabled={!canEditUser(user.uid, user.role)}
-                  onChange={(e) =>
-                    handleRoleChange(user.uid, e.target.value as UserRole)
-                  }
-                >
-                  {(["admin", "manager", "user"] as UserRole[]).map((role) => (
-                    <option
-                      key={role}
-                      value={role}
-                      disabled={!canAssignRole(role)}
-                    >
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+    <h2>Admin Panel - users</h2>
+    <UserRowTable viewerRole={viewerRole} />
+    </>
   );
-}
+};
