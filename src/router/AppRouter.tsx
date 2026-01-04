@@ -10,6 +10,7 @@ import { RoleProtectedRoute } from "./RoleProtectedRoute";
 import { AdminPage } from "../pages/dashboard/admin/AdminPage";
 import { ManagerPage } from "../pages/dashboard/manager/ManagerPage";
 import { ProfilePage } from "../pages/ProfilePage";
+import { AuditLogPage } from "../pages/dashboard/admin/AuditLogPage";
 
 export const AppRouter = () => {
   return (
@@ -27,16 +28,30 @@ export const AppRouter = () => {
       >
         <Route index element={<DashboardPage />} />
         <Route path="profile" element={<ProfilePage />} />
-        <Route path="admin" element={
+        <Route
+          path="admin"
+          element={
             <RoleProtectedRoute allowedRoles={["admin"]}>
-                <AdminPage />
+              <AdminPage />
             </RoleProtectedRoute>
-        } />
-        <Route path="manager" element={
+          }
+        />
+        <Route
+          path="admin/audit-log"
+          element={
+            <RoleProtectedRoute allowedRoles={["admin"]}>
+              <AuditLogPage />
+            </RoleProtectedRoute>
+          }
+        />
+        <Route
+          path="manager"
+          element={
             <RoleProtectedRoute allowedRoles={["admin", "manager"]}>
-                <ManagerPage />
+              <ManagerPage />
             </RoleProtectedRoute>
-        } />
+          }
+        />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

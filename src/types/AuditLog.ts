@@ -8,3 +8,5 @@ export type AuditLog = {
   newRole: UserRole;
   timestamp: number | object;
 };
+
+export type AuditLogWithId = AuditLog & {uid: string}

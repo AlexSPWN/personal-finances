@@ -7,13 +7,10 @@ import { GlobalLoader } from './components/GlobalLoader';
 function App() {
 
   const { loading } = useAuth();
-
-  if(loading) {
-    return <GlobalLoader />
-  }
-  
+ 
   return (
     <div className='bg-gray-400 h-screen'>
+      { loading && <GlobalLoader/>}
       <AppRouter />
     </div>
   )

@@ -44,3 +44,33 @@ export const updateUserLanguage = (uid: string, language: LanguageUI) => {
   const userRef = ref(db, `users/${uid}`);
   return update(userRef, { language });
 }
+
+export const subscribeToUsersMap = (
+  callback: (map: Record<string, string>) => void
+) => {
+  const usersRef = ref(db, "users");
+
+  onValue(usersRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      callback({});
+      return;
+    }
+
+    const data = snapshot.val() as Record<
+      string,
+      UserProfileDB
+    >;
+
+    const map: Record<string, string> = {};
+
+    Object.entries(data).forEach(([uid, profile]) => {
+      if (profile.email) {
+        map[uid] = profile.email;
+      }
+    });
+
+    callback(map);
+  });
+
+  return () => off(usersRef);
+};

@@ -1,4 +1,5 @@
 
+import { Link } from "react-router";
 import { UserRowTable } from "../../../components/UserRowTable";
 import { useAuth } from "../../../hooks/useAuth";
 import type { ViewerRole } from "../../../types/UserProfileDB";
@@ -14,6 +15,7 @@ export const AdminPage = () => {
     <>
     <h2>Admin Panel - users</h2>
     <UserRowTable viewerRole={viewerRole} />
+    <Link to="audit-log">Audit log</Link>
     </>
   );
 };
