@@ -11,6 +11,8 @@ import { AdminPage } from "../pages/dashboard/admin/AdminPage";
 import { ManagerPage } from "../pages/dashboard/manager/ManagerPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { AuditLogPage } from "../pages/dashboard/admin/AuditLogPage";
+import { UserRowTableWrapper } from "../components/UserRowTableWrapper";
+import { AccessDeniedPage } from "../pages/AccessDeniedPage";
 
 export const AppRouter = () => {
   return (
@@ -18,6 +20,7 @@ export const AppRouter = () => {
       <Route index element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/access-denied" element={<AccessDeniedPage />} />
       <Route
         path="/dashboard"
         element={
@@ -35,15 +38,18 @@ export const AppRouter = () => {
               <AdminPage />
             </RoleProtectedRoute>
           }
-        />
-        <Route
+        >
+        <Route index element={<UserRowTableWrapper />} />  {/* users */}
+        <Route path="audit-log" element={<AuditLogPage />} /> {/* audit log */}
+        </Route>
+        {/* <Route
           path="admin/audit-log"
           element={
             <RoleProtectedRoute allowedRoles={["admin"]}>
               <AuditLogPage />
             </RoleProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="manager"
           element={

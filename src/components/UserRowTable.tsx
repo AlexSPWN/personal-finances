@@ -1,3 +1,4 @@
+// src/components/UserRowTable.tsx
 import { useEffect, useState, useOptimistic, startTransition } from "react";
 import {
   subscribeToAllUsers,
@@ -9,6 +10,7 @@ import { rolePolicies } from "../policies/rolePolicies";
 import { useAuth } from "../hooks/useAuth";
 import { logRoleChange } from "../services/auditLogService";
 import { serverTimestamp } from "firebase/database";
+import { useToast } from "../hooks/useToast";
 
 type ViewerRole = "admin" | "manager";
 
@@ -21,6 +23,8 @@ export const UserRowTable = ({ viewerRole }: Props) => {
   const { user: authUser } = useAuth();
   const authUserId = authUser?.uid;
 
+  const { addToast } = useToast();
+
   const [optimisticUsers, setOptimisticUsers] = useOptimistic(
     users,
     (state, update: { uid: string; role: UserRole }) =>
@@ -32,37 +36,18 @@ export const UserRowTable = ({ viewerRole }: Props) => {
     return unsubscribe;
   }, []);
 
-  
-  // disable <select>
   const canEditUser = (targetUser: UserWithId) => {
     if (targetUser.uid === authUserId) return false;
-
     if (viewerRole === "admin") return true;
-
-    if (viewerRole === "manager") {
-      return targetUser.role !== "admin";
-    }
-
+    if (viewerRole === "manager") return targetUser.role !== "admin";
     return false;
   };
 
-  // disable <option>
-  const canAssignRole = (
-        //targetUser: UserWithId, 
-        newRole: UserRole) => {
+  const canAssignRole = (newRole: UserRole) => {
     if (viewerRole === "admin") return true;
-
-    if (viewerRole === "manager") {
-      return newRole === "manager" || newRole === "user";
-    }
-
+    if (viewerRole === "manager") return newRole === "manager" || newRole === "user";
     return false;
   };
-
-  /* const allowedRoles: UserRole[] =
-    viewerRole === "admin"
-      ? ["admin", "manager", "user"]
-      : ["manager", "user"]; */
 
   const allowedRoles = rolePolicies[viewerRole].allowedRoles;
 
@@ -71,74 +56,113 @@ export const UserRowTable = ({ viewerRole }: Props) => {
     if (!targetUser) return;
 
     const oldRole = targetUser.role;
-
-    // hard guard (matches previous AdminPage logic)
     if (!canEditUser(targetUser)) return;
     if (!canAssignRole(role)) return;
 
-    startTransition(()=> {
+    startTransition(() => {
       setOptimisticUsers({ uid, role });
     });
 
     try {
       await updateUserRole(uid, role);
-      
+      addToast(`Role updated from ${oldRole} → ${role}`, "success");
+
       await logRoleChange({
         actorUid: authUserId!,
         actorRole: viewerRole,
         targetUid: uid,
         oldRole,
         newRole: role,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
       });
     } catch (err) {
       console.error("Role update failed", err);
-      alert("Failed to update role");
       setUsers((prev) => [...prev]); // rollback
+      addToast(err instanceof Error ? err.message : "Failed to update role", "error");
     }
   };
 
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th>Email</th>
-          <th>Role</th>
-          <th>Language</th>
-          <th>Change role</th>
-        </tr>
-      </thead>
+  const isLoading = optimisticUsers.length === 0;
 
-      <tbody>
-        {optimisticUsers.map((user) => (
-          <tr key={user.uid}>
-            <td>{user.email}</td>
-            <td>{user.role}</td>
-            <td>{user.language}</td>
-            <td>
-              <select
-                disabled={!canEditUser(user)}
-                value={user.role}
-                onChange={(e) =>
-                  handleRoleChange(user.uid, e.target.value as UserRole)
-                }
-              >
-                {canEditUser(user) ? (allowedRoles.map((role) => (
-                  <option
-                    key={role}
-                    value={role}
-                    disabled={!canAssignRole(role)}
-                  >
-                    {role}
-                  </option>
-                ))): (
-                  <option key={user.role} value={user.role}>{user.role}</option>
-                )}
-              </select>
-            </td>
+  return (
+    <div className="max-h-125 overflow-y-auto border rounded bg-white">
+      <table className="w-full border-collapse">
+        <thead className="sticky top-0 bg-gray-100 z-10">
+          <tr>
+            <th className="border p-2 text-left">Email</th>
+            <th className="border p-2 text-left">Role</th>
+            <th className="border p-2 text-left">Language</th>
+            <th className="border p-2 text-left">Change role</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+
+        <tbody>
+          {/* Skeleton loader */}
+          {isLoading &&
+            Array.from({ length: 5 }).map((_, i) => (
+              <tr key={`skeleton-${i}`} className="animate-pulse">
+                <td className="border p-2">
+                  <div className="h-4 bg-gray-200 rounded w-32" />
+                </td>
+                <td className="border p-2">
+                  <div className="h-4 bg-gray-200 rounded w-20" />
+                </td>
+                <td className="border p-2">
+                  <div className="h-4 bg-gray-200 rounded w-16" />
+                </td>
+                <td className="border p-2">
+                  <div className="h-4 bg-gray-200 rounded w-24" />
+                </td>
+              </tr>
+            ))}
+
+          {/* Data rows */}
+          {!isLoading &&
+            optimisticUsers.map((user) => (
+              <tr key={user.uid} className="hover:bg-gray-50 transition-colors">
+                <td className="border p-2">{user.email}</td>
+                <td className="border p-2">{user.role}</td>
+                <td className="border p-2">{user.language}</td>
+                <td className="border p-2">
+                  <select
+                    aria-label={`Change role for ${user.email}`}
+                    className={`border rounded p-1 ${
+                      !canEditUser(user)
+                        ? "bg-gray-100 cursor-not-allowed opacity-60"
+                        : "cursor-pointer"
+                    }`}
+                    disabled={!canEditUser(user)}
+                    value={user.role}
+                    onChange={(e) =>
+                      handleRoleChange(user.uid, e.target.value as UserRole)
+                    }
+                  >
+                    {canEditUser(user) ? (
+                      allowedRoles.map((role) => (
+                        <option key={role} value={role} disabled={!canAssignRole(role)}>
+                          {role}
+                        </option>
+                      ))
+                    ) : (
+                      <option key={user.role} value={user.role}>
+                        {user.role}
+                      </option>
+                    )}
+                  </select>
+                </td>
+              </tr>
+            ))}
+
+          {/* Empty state */}
+          {!isLoading && optimisticUsers.length === 0 && (
+            <tr>
+              <td colSpan={4} className="p-6 text-center text-gray-500">
+                No users found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 };
