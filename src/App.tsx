@@ -8,7 +8,7 @@ import { ToastContainer } from "./components/toast/ToastContainer";
 
 function App() {
   const { loading } = useAuth();
-
+  //trigger
   if (loading) {
     return <GlobalLoader />;
   }
