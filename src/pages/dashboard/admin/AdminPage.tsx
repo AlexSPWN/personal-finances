@@ -21,8 +21,7 @@ export const AdminPage = () => {
 
   return (
    <div className="p-4 space-y-4">
-      <h2 className="text-xl font-bold">Admin Panel New smile</h2>
-
+      <h2 className="text-xl font-bold">Admin Panel</h2>
       {/* Tabs */}
       <div className="flex border-b">
         {tabs.map((tab) => (
